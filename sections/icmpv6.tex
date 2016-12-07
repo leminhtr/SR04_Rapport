@@ -1,0 +1,205 @@
+\chapter{Le protocole ICMPv6}\label{ch:icmpv6}
+
+\section{Présentation}
+\subsection{Qu'est-ce-qu'ICMP ?}
+
+ICMP : Internet Control Message Protocol 
+\medskip
+
+ICMPv6 est l'un des protocoles fondamentaux d'Internet. Il permet aux routeurs d'envoyer des messages d'erreurs ou de contrôle à d'autres routeurs ou machines. Ces messages contiennent des informations sur les problèmes rencontrés lors de la transmission des paquets.
+\medskip
+    
+Quelques exemples :
+    \begin{itemize}
+    	\item rapporter des erreurs trouvées dans le traitement de paquets
+        \item effectuer des diagnostics
+    \end{itemize}
+\medskip
+
+Les datagrammes ICMP sont transportés à l'intérieur de datagrammes IPv6 dans lequel un en-tête d'extension peut aussi être présent. Un message ICMP est identifié par sa valeur 58 positionnée dans le champ Next Header de l'en-tête IPv6. Le protocole ICMPv6 est implémenté au niveau de la couche 3.
+\medskip
+
+\begin{table}[!h]
+  \centering
+  \begin{tabular}{|l|l|l|} 
+   \hline
+   	Type & Code & Checksum \\
+    \hline
+    & Message Body &\\
+    \hline
+  \end{tabular}
+  \caption{Format d'un message ICMPv6}
+\end{table}
+
+Champ \emph{type} : indique le type du message. Sa valeur détermine le format des données.
+
+Champ \emph{code} : fournit des informations supplémentaires sur le type du message.
+
+Champ \emph{checksum} : utilisé pour détecter une éventuelle corruption des données.
+
+\subsection{Quelles sont les nouveautés apportées par ICMPv6 ?}
+
+Quelques nouveautés :
+	\begin{itemize}
+    	\item suppression de certains types de messages devenus obsolètes
+        \item renforcement de la sécurité des messages ICMP avec l'apparition du système d'authentification (Authentification Header) et de confidentialité (Encapsulating Security Payload Header) de IPv6
+        \item ICMPv6 reprend des fonctionnalités qui étaient à la base implémentées dans d'autres protocoles pour IPv4, par exemple la découverte de voisin qui était effectuée par ARP
+    \end{itemize}
+\medskip
+
+On peut aussi noter que le protocole ICMPv6 n'est pas seulement utilisé pour rapporter des erreurs mais implémente par exemple le mécanisme de découverte de route utilisé pour configurer les hôtes. Il est aussi utilisé pour le management des adresses multicast.
+    
+\medskip
+
+\subsection{Détermination de l'adresse source d'un message}
+
+Un noeud envoyant un message ICMPv6 doit déterminer à la fois les adresses IPv6 de source et de destination de l'en-tête IPv6 avant de calculer la somme de contrôle. Si le noeud a plus d'une adresse unicast, il doit choisir l'adresse source du message de la manière suivante :
+    \begin{itemize}
+		\item{si le message est une réponse à un message envoyé à l'une des adresses unicast du noeud, l'adresse source de la réponse doit être la même.}
+		\item{si le message est une réponse à un message envoyé en multicast, ou anycast, d'un groupe dont le noeud est membre, l'adresse de la réponse doit appartenir au groupe.}
+	\end{itemize}
+    
+\subsection{Traitement des messages ICMPv6}
+
+Les règles suivantes sont appliquées pour traiter les messages ICMPv6 :
+    \begin{list}{}{}
+    	\item 1 : les messages d'erreur inconnus doivent être passés à la couche supérieure ayant causé le datagramme responsable de l'erreur
+        \item 2 : les messages informatifs inconnus sont jetés
+        \item 3 : un noeud IPv6 doit limiter le nombre de messages d'erreur qu'il envoie
+        \item 4 : un message d'erreur ne doit jamais être envoyé en réponse à :
+        	    \begin{itemize}
+					\item un message d'erreur
+					\item un message de redirection
+                    \item un paquet destiné à une adresse multicast IPv6
+                    \item un paquet dont l'adresse source identifie plusieurs noeuds
+				\end{itemize}
+    \end{list}
+    
+\section{Messages d'erreur}
+
+On identifie les messages d’erreur grâce à la présence d’un 0 en bit de poids fort pour le type, cela représente donc les types de 0 à 127.
+\medskip
+
+Types de messages d'erreur ICMPv6 :         
+    \begin{list}{}{}
+    	\item 1 : Destination inatteignable
+        \item 2 : Paquet trop grand 
+        \item 3 : Temps écoulé
+        \item 4 : Problème de paramètre
+        \item 100 : Expérimentation privée
+        \item 101 : Expérimentation privée
+        \item 127 : Réservé pour la création de nouveaux messages d'erreur
+    \end{list}
+\medskip
+
+Ces messages permettent d'effectuer des diagnostics, de savoir pourquoi le paquet n'a pas été acheminé, ou pourquoi il a été rejeté. Ils sont en rapport avec les problèmes de livraison des paquets IP.
+
+Une fois reçu, ces messages sont délivrés soit aux processus utilisateurs, soit à un protocole de transport (exemple : TCP).
+
+\subsection{Type 1 : destination inatteignable}
+
+Les messages de ce type sont utilisés pour indiquer qu'un paquet a pu ne pas être délivré à son destinataire soit à cause d'un problème rencontré sur le chemin, soit à cause d'un manque d'intérêt du destinataire.
+
+Ce message n'utilise pas le champ message body.
+\medskip
+
+Champ \emph{code} :
+    \begin{list}{}{}
+    	\item 0 : Pas de route vers la destination 
+        \item 1 : Communication avec la destination interdite administrativement (firewall)
+        \item 2 : La destination est hors de portée   
+        \item 3 : Adresse inatteignable
+        \item 4 : Port inatteignable 
+        \item 5 : La politique de filtrage estime que le paquet n'est pas conforme
+        \item 6 : Rejet de la route vers la destiantion
+    \end{list}
+
+\subsection{Type 2 : paquet trop grand}
+
+Ce message utilise le champ message body pour y indiquer le MTU du noeud posant problème.
+\medskip
+
+Champ \emph{code} : il est mis à 0 par l'émetteur et ignoré par le récepteur.
+
+Champ \emph{MTU} : contient la valeur du MTU du noeud qui a rejeté le paquet        
+
+\subsection{Type 3 : temps dépassé}
+
+Ce message est envoyé par un routeur lorsque la durée de vie d'un paquet est dépassée. 
+
+Ce message n'utilise pas le champ message body.
+\medskip
+
+Champ \emph{code} :
+    \begin{list}{}{}
+    	\item 0 : Le "hop limit" est dépassé
+        \item 1 : Temps de réassemblement des fragments dépassé
+    \end{list}
+
+\subsection{Type 4 : problème de paramètre}
+
+Ce message ICMP est envoyé quand un paramètre dans un paquet reçu est invalide. 
+
+Ce message utilise le champ message body pour y stocker un pointeur.
+\medskip
+
+Champ \emph{code} :           
+    \begin{list}{}{}
+    	\item 0 : Champ d'en-tête erroné
+        \item 1 : En-tête suivant non reconnaissable
+        \item 2 : Option IPv6 non reconnue  
+    \end{list}
+
+Champ \emph{pointeur} : identifie l'octet du paquet où l'erreur a été détectée. Le pointeur pointera au delà de la fin du paquet ICMPv6 si le champ erroné se trouve au delà de ce qui peut tenir dans un message d'erreur ICMPv6.
+
+\section{Messages informatifs}
+
+	On identifie les messages informatifs grâce à la présence d’un 1 en bit de poids fort pour le type, cela représente donc les types de 128 à 255.
+\medskip
+
+Types de messages informatifs ICMPv6 : 
+    \begin{list}{}{}
+    	\item 128 : Demande d'écho
+        \item 129 : Réponse à un écho
+        \item 200 : Expérimentation privée  
+        \item 201 : Expérimentation privée  
+        \item 255 : Réservée pour la création de nouveaux messages informatifs  
+    \end{list}
+\medskip
+
+Les messages d'écho sont par exemple utilisés par l'utilitaire "ping", permettant de savoir si une machine est présente sur le réseau. Ils servent à tester la connexion entre deux points.
+
+\begin{table}[!h]
+  \centering
+  \begin{tabular}{|l|l|l|} 
+   \hline
+   	Type & Code & Checksum \\
+    \hline
+    Identifiant & Numéro de séquence & \\
+    \hline
+    Données & & \\
+    \hline
+  \end{tabular}
+  \caption{Format des message de demande et réponse d'écho \cite{}}
+\end{table}
+
+\subsection{Type 128 : demande d'écho}
+
+Champ \emph{identifiant} : l'identifiant aide à faire correspondre les réponses d'écho aux demandes.
+
+Champ \emph{numéro de séquence} : le numéro de séquence aide à faire correspondre les réponses d'écho aux demandes.    
+
+Champ \emph{données} : contient des données à transmettre
+
+\subsection{Type 129 : réponse d'écho}
+
+Champ \emph{identifiant} : contient l'identifiant du message correspondant à la demande d'écho.
+
+Champ \emph{numéro de séquence} : contient le numéro de séquence du message correspondant à la demande d'écho.   
+
+Champ \emph{données} : contient des données provenant du message correspondant à la demande d'écho.
+\medskip
+
+Les messages de réponse d'écho doivent être passés au noeud qui a créé une demande d'écho. 
+    
+On peut noter qu'il n'y a pas de limitation à la quantité de données que l'on peut fournir dans des messages de demande d'écho ou de réponse.

@@ -17,28 +17,36 @@
 \input{setup/preamble.tex}% package inclusion and set up of the document
 \input{setup/hyphenations.tex}% 
 \input{setup/macros.tex}% my new macros
+\usepackage{float}
+\usepackage{url}
 
 \begin{document}
 %frontmatter
 \pagestyle{empty} %disable headers and footers
 \pagenumbering{roman} %use roman page numbering in the frontmatter
+\setcounter{secnumdepth}{3} % pour sous sous partie
 \input{sections/frontpage.tex}
-\input{sections/colophon.tex}
-\input{sections/titlepages.tex}
 \cleardoublepage
 \pdfbookmark[0]{Contents}{label:contents}
 \pagestyle{fancy} %enable headers and footers again
 \tableofcontents
-\listoftodos
-\input{sections/preface.tex}
-\cleardoublepage
+
 %mainmatter
 \pagenumbering{arabic} %use arabic page numbering in the mainmatter
-\input{sections/introduction.tex}
-\input{sections/ch2name.tex}
+\input{sections/coucheReseau.tex}
+\input{sections/routage.tex}
+\input{sections/ipv6.tex}
+\input{sections/icmpv6.tex}
+\input{sections/qos.tex}
+\input{sections/experimentation.tex}
 \input{sections/conclusion.tex}
+\nocite{Couchereseaux}
+\nocite{Rout_vecteur}
+\nocite{Algo_routage}
+\nocite{Xripng}
+\nocite{Xospf}
+\nocite{RFC}
+\nocite{Shichao}
 \printbibliography[heading=bibintoc]
 \label{bib:mybiblio}
-\appendix
-\input{sections/appAname.tex}
 \end{document}

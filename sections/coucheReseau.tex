@@ -1,0 +1,42 @@
+\chapter{La couche réseau}\label{ch:couchereseau}
+
+\section{Présentation de la couche réseau}
+
+	\subsection{Rôles et services}
+
+		Le rôle de la couche réseau est d’acheminer efficacement des paquets d’une source vers une destination suivant un parcours. Ce parcours peut être composé d’étapes intermédiaires. La couche réseau doit déterminer le meilleur chemin à prendre pour acheminer les paquets et doit donc connaître la topologie du réseau. Les réseaux peuvent avoir des protocoles différents, ce qui est un élément important à prendre en compte lors de la conception de la couche réseau.
+        \medskip
+        
+		Un tel rôle demande un système de routage (\ref{ch:routage}) et d’adressage performant pour diriger les paquets entrants vers leur prochaine destination et doit tenir compte du réseau en lui-même (topologie, panne, surcharge, …). Il faut donc considérer les problèmes de congestion et plus généralement, la qualité de service (QoS : \ref{ch:qos}). 
+        \medskip
+        
+		La couche réseau doit aussi tenir compte des besoins de l’application (type de service, fiabilité, …). Selon le besoin, il faut choisir entre le mode non connecté et le mode connecté : 
+        \begin{itemize}
+        \item Soit les paquets sont émis et routés indépendamment les uns des autres : les paquets sont nommés datagramme et le réseau est donc un réseau de datagramme.
+		\item Si une connexion avec le destinataire est établie avant le début de la transmission, cette connexion est appelée circuit virtuel et le réseau est un réseau de circuit virtuel.
+        \end{itemize}
+        
+			\begin{table}[H]
+			\centering
+			\label{MNC_MC}
+			\begin{tabular}{|p{4cm}|p{5cm}|p{5cm}|}
+			\hline
+			\textbf{Aspect}               & \textbf{Datagrammes}                                                             & \textbf{Circuits virtuels (CV)}                                                                  \\ \hline
+			Phase d'établissement         & Non nécessaire                                                                   & Requise                                                                                          \\ \hline
+			Adressage                     & Chaque paquet contient les adresses complètes de la source et de la destination. & Chaque connexion requiert des informations d'identification de circuit dans la table de routage. \\ \hline
+			Routage                       & Chaque paquet est routé indépendamment.                                          & La route est choisie lors de l'établissement du CV et suivie par tous les paquets.               \\ \hline
+			Impact d'une panne de routeur & Aucun, excepté pour les paquets perdus au moment de l'incident.                  & Tous les CV passant par le routeur sont supprimés.                                               \\ \hline
+			Qualité de service (QoS)      & Difficile à garantir                                                             & Facile à garantir si suffisamment de ressources peuvent être allouées par avance pour chaque CV. \\ \hline
+			Contrôle de congestion        & Difficile.                                                                       & Facile si suffisamment de ressources peuvent être allouées par avance pour chaque CV             \\ \hline
+			\end{tabular}
+			\caption{Comparaison de réseaux de datagrammes et de réseaux de circuits virtuels \cite{Tanenbaum2003}}
+			\end{table}
+        %\medskip
+       
+		La couche réseau rend service à la couche transport et utilise la couche liaison.
+		Elle rajoute un en-tête au segment de la couche transport puis fragmente si besoin le paquet pour la couche liaison. Il faut impérativement indépendance entre technologies de routeur et services pour assurer la maintenabilité et compatibilité.
+
+	\subsection{Composition}
+Pour assurer ses rôles, la couche réseau utilise une table de routage pour l’adressage et des algorithmes de routage pour le choix de la prochaine destination. 
+	\newline
+		La couche réseau utilise le protocole IP dans l'Internet qui est un protocole en mode non connecté. IPv4 et IPv6 (\ref{ch:ipv6}) sont deux versions de ce protocole. Nous étudierons la version IPv6 qui utilise le protocole ICMPv6 (\ref{ch:icmpv6}).
