@@ -111,6 +111,7 @@ Ici le but est de réserver les ressources de bout en bout, donc chaque routeur 
 	L'intérêt d'utiliser le champ Flow Label comme marqueur de flux est que les routeurs n'ont plus à décoder la charge du paquet pour déterminer le flux auquel appartient le paquet. Le traitement et le routage des paquets est ainsi accéléré pour une QoS particulière.
     
 \subsection{Systèmes de type DiffServ : le champ Traffic Class}
+	\label{diffserv}
 	Ici, le mécanisme est différent, le traitement se fait routeur par routeur (Per Hop Behavior : PHB). Ce type de système est plus simple à mettre en oeuvre et donc plus utilisé aujourd'hui.
     
     Le fonctionnement est le suivant : la source marque le paquet en positionnant certains bits du marqueur DSCP (Differentiated Service Code Point).
@@ -122,6 +123,7 @@ Ici le but est de réserver les ressources de bout en bout, donc chaque routeur 
     \includegraphics[width=250px]{figures/trafficclass.png}
     \centering
     \caption{Structure du champ Traffic Class. \cite{Hagen2014}}
+    \label{paquet_traffic_class}
     \end{figure}
 	
     
